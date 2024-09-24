@@ -27,6 +27,13 @@ struct TPrettyPrinter {
         return *this;
     }
 
+    // Шаблонная функция для обработки любых типов, которые могут быть выведены в поток
+    template<typename T>
+    TPrettyPrinter& Format(const T& t) {
+        ss << t;
+        return *this;
+    }
+
     // Функция форматирования для пар
     template<typename T1, typename T2>
     TPrettyPrinter& Format(const std::pair<T1, T2>& p) {
@@ -66,7 +73,7 @@ struct TPrettyPrinter {
         ss << "(";
         std::apply([this](const auto&... args) {
             size_t n = 0;
-            ((ss << (n++ ? ", " : "") << args), ...);
+            ((Format(args).ss << (++n != sizeof...(args) ? ", " : "")), ...);
         }, t);
         ss << ")";
         return *this;
@@ -88,6 +95,9 @@ int main() {
 
     std::string s2 = TPrettyPrinter().Format(t).Format(" ! ").Format(0).Str();
     std::cout << s2 << std::endl;  // "(xyz, 1, 2) ! 0"
+
+    // Пример с unsigned long long
+    std::cout << Format(1ull << 40) << std::endl;  // 1099511627776
 
     return 0;
 }
