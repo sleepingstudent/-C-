@@ -1,32 +1,28 @@
 #include <iostream>
 #include <memory>
 
-// мой аллокатор
-template<typename T>
+// Пользовательский аллокатор
+template <typename T, typename A = T>
 struct MyAllocator {
-    using value_type = T;
+    typedef T value_type;
 
-    MyAllocator() = default;
+    MyAllocator() noexcept {}
 
-    template<typename U>
-    MyAllocator(const MyAllocator<U>&) {}
+    template <class U>
+    MyAllocator(const MyAllocator<U>&) noexcept {}
 
+    // Вызов кастомного оператора new из класса A
     T* allocate(std::size_t n) {
         std::cout << "Custom allocator allocate!" << std::endl;
-        return static_cast<T*>(::operator new(n * sizeof(T)));
+        return static_cast<T*>(A::operator new(sizeof(T) * n));
     }
 
+    // Вызов кастомного оператора delete из класса A
     void deallocate(T* p, std::size_t n) {
         std::cout << "Custom allocator deallocate!" << std::endl;
-        ::operator delete(p);
+        return A::operator delete(p, sizeof(T) * n);
     }
 };
-
-template<typename T, typename U>
-bool operator==(const MyAllocator<T>&, const MyAllocator<U>&) { return true; }
-
-template<typename T, typename U>
-bool operator!=(const MyAllocator<T>&, const MyAllocator<U>&) { return false; }
 
 class A {
 public:
@@ -45,6 +41,6 @@ public:
 
 int main() {
     // Создаём объект A с помощью allocate_shared и пользовательского аллокатора
-    auto sp = std::allocate_shared<A>(MyAllocator<A>());
+    std::shared_ptr<A> sp = std::allocate_shared<A>(MyAllocator<A>());
     return 0;
 }
