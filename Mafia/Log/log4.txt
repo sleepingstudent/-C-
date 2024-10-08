@@ -1,0 +1,13 @@
+INFO
+
+Роли игроков:
+Player0  --  Civillian
+Player1  --  Doctor
+Player2  --  Civillian
+Player3  --  Civillian
+Player4  --  Mafia
+Player5  --  Civillian
+Player6  --  Comissar
+Player7  --  Civillian
+Player8  --  Maniac
+Player9  --  Mafia
